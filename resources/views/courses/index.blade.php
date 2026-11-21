@@ -28,21 +28,43 @@
     <div class="card-body" style="padding-bottom: 0;">
         <form action="{{ route('courses.index') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
             <div style="flex: 1; min-width: 240px;">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="form-control" 
-                    placeholder="Cari berdasarkan kode mata kuliah, nama, atau semester..." 
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Cari berdasarkan kode mata kuliah, nama, atau semester..."
                     value="{{ request('search') }}"
                 >
             </div>
-            
-            {{-- TODO 6: Tambahkan dropdown filter Semester dan dropdown Urutkan (Sort) di sini --}}
-            
+
+            {{-- TODO 6: Filter Semester dan Urutkan (Sort) --}}
+            <div style="min-width: 160px;">
+                <select name="semester" class="form-control">
+                    <option value="">Semua Semester</option>
+                    @foreach($semesters ?? [] as $sem)
+                        <option value="{{ $sem }}" {{ (string) request('semester') === (string) $sem ? 'selected' : '' }}>
+                            Semester {{ $sem }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="min-width: 180px;">
+                <select name="sort" class="form-control">
+                    <option value="">Urutkan</option>
+                    <option value="nama_asc"  {{ request('sort') === 'nama_asc'  ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="nama_desc" {{ request('sort') === 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                    <option value="kode_asc"  {{ request('sort') === 'kode_asc'  ? 'selected' : '' }}>Kode MK (A-Z)</option>
+                    <option value="sks_desc"  {{ request('sort') === 'sks_desc'  ? 'selected' : '' }}>SKS Terbanyak</option>
+                    <option value="sks_asc"   {{ request('sort') === 'sks_asc'   ? 'selected' : '' }}>SKS Tersedikit</option>
+                    <option value="terbaru"   {{ request('sort') === 'terbaru'   ? 'selected' : '' }}>Terbaru</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-secondary">
                 Filter &amp; Cari
             </button>
-            @if(request('search'))
+            @if(request('search') || request('semester') || request('sort'))
                 <a href="{{ route('courses.index') }}" class="btn btn-secondary" style="color: var(--slate-500);">
                     Reset
                 </a>
@@ -155,7 +177,7 @@
         </div>
 
         <div style="margin-top: 1.5rem;">
-            {{ $courses->links() }}
+            {{ $courses->withQueryString()->links() }}
         </div>
     </div>
 </div>
